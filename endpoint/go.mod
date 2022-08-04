@@ -1,5 +1,5 @@
-module BlackJack.com/endpoint
+module blackjack.com/endpoint
 
 go 1.18
 
-replace BlackJack.com/delear => ..\data\delear
+replace blackjack.com/delear => ..\data\delear

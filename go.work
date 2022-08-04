@@ -2,5 +2,9 @@ go 1.18
 
 use (
 	./data/delear
+	./data/cart
+	./data/deck
+	./data/player
+	./data/room
 	./endpoint
 )

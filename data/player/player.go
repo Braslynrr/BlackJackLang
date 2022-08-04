@@ -1,6 +1,6 @@
 package player
 
-import "BlackJack.com/cart"
+import "blackjack.com/cart"
 
 type Player struct {
 	Code       string      `json:"code"`
@@ -10,7 +10,7 @@ type Player struct {
 	Hand       []cart.Cart `json:"hand"`
 }
 
-func newPlayer(name string, host bool) (player *Player) {
+func NewPlayer(name string, host bool) (player *Player) {
 	return &Player{Name: name, IsHost: host, Hand: make([]cart.Cart, 0), IsFinished: false}
 }
 

@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"time"
 
-	"BlackJack.com/cart"
+	"blackjack.com/cart"
 )
 
 type Deck struct {

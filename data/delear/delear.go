@@ -1,8 +1,8 @@
 package delear
 
 import (
-	"BlackJack.com/cart"
-	"BlackJack.com/deck"
+	"blackjack.com/cart"
+	"blackjack.com/deck"
 )
 
 type Delear struct {

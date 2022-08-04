@@ -1,7 +1,7 @@
-module BlackJack.com/deck
+module blackjack.com/deck
 
 go 1.18
 
-replace BlackJack.com/cart => ../cart
+replace blackjack.com/cart => ../cart
 
-require BlackJack.com/cart v0.0.0-00010101000000-000000000000
+require blackjack.com/cart v0.0.0-00010101000000-000000000000
