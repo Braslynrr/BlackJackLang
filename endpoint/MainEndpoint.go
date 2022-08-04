@@ -3,20 +3,26 @@ package main
 import (
 	"fmt"
 
-	"BlackJack.com/deck"
+	"BlackJack.com/delear"
 )
 
 func main() {
-	newdeck, err := deck.NewDeck()
+	delear := delear.NewDelear()
+	err := delear.GetDeck()
 	if err != nil {
-		fmt.Println(err)
+		print(err.Error())
 	}
-	newdeck.ShuffleDeck()
-	cart, err := newdeck.Peek()
-	if err == nil {
-		fmt.Printf("cart is: %v", cart)
-	} else {
-		fmt.Println(err)
-	}
+	delear.ShuffleDeck()
 
+	fmt.Printf("Delear info is: %v\n", delear)
+
+	cart, err := delear.GetCart()
+	fmt.Printf("cart:%v\n", cart)
+
+	cart, err = delear.GetCart()
+	fmt.Printf("cart:%v\n", cart)
+
+	fmt.Printf("There are %v carts\n", delear.Deck.CurrentCarts)
+
+	fmt.Printf("Delear info is: %v\n", delear)
 }

@@ -12,7 +12,7 @@ import (
 
 type Deck struct {
 	Carts        []cart.Cart `json:"carts"`
-	currentCarts int8
+	CurrentCarts int8        `json:"currentcarts"`
 }
 
 func NewDeck() (deck *Deck, err error) {
@@ -24,7 +24,7 @@ func NewDeck() (deck *Deck, err error) {
 	if err != nil {
 		return
 	}
-	deck.currentCarts = 52
+	deck.CurrentCarts = 52
 	return
 }
 
@@ -35,13 +35,13 @@ func (deck Deck) ShuffleDeck() {
 	})
 }
 
-func (deck Deck) Peek() (cart cart.Cart, err error) {
+func (deck *Deck) Peek() (cart cart.Cart, err error) {
 	err = nil
-	if deck.currentCarts == 0 {
+	if deck.CurrentCarts == 0 {
 		return cart, errors.New("There aren't carts")
 	}
 	cart = deck.Carts[0]
 	deck.Carts = deck.Carts[1:len(deck.Carts)]
-	deck.currentCarts--
+	deck.CurrentCarts--
 	return
 }
