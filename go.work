@@ -7,4 +7,7 @@ use (
 	./data/player
 	./data/room
 	./endpoint
+	./logic/gameManager
+	./logic/playerManager
+	./logic/roomManager
 )

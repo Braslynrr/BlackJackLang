@@ -13,10 +13,11 @@ type Room struct {
 	Delear     delear.Delear   `json:"delear"`
 	Players    []player.Player `json:"players"`
 	PlayingNow bool            `json:"playingnow"`
+	isprivite  bool
 }
 
-func NewRoom(code string, password string) (room Room) {
-	return Room{Code: code, Password: password, Delear: delear.NewDelear(), Players: make([]player.Player, 0, 8)}
+func NewRoom(code string, password string, isprivate bool) (room Room) {
+	return Room{Code: code, Password: password, Delear: delear.NewDelear(), Players: make([]player.Player, 0, 8), isprivite: isprivate}
 }
 
 func (room *Room) JoinPlayer(player *player.Player) (*Room, error) {
