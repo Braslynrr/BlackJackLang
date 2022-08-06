@@ -16,7 +16,39 @@
         output.innerHTML += "Server: " + player.name + "\n";
     };
 
-    function send() {
+    async function send() {
+       let bicho = await fetch("http://localhost:8080/player",{
+            method: "post",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+
+            //make sure to serialize your JSON body
+            body: JSON.stringify({
+            name: input.value,
+            }) })  
+
+            let player = await bicho.json()
+            alert(JSON.stringify(player))
+
+            let bicho2 = await fetch("http://localhost:8080/room",{
+            method: "post",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+
+            //make sure to serialize your JSON body
+            body: JSON.stringify({
+            password: input.value,
+            isprivate:0
+            }) })  
+
+            let room = await bicho2.json() 
+            alert(JSON.stringify(room))
+
+            
         socket.send(input.value);
         input.value = "";
     }
