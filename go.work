@@ -1,15 +1,15 @@
 go 1.18
 
 use (
-	./data/delear
 	./data/card
 	./data/deck
+	./data/delear
 	./data/player
 	./data/room
 	./endpoint
+	./endpoint/interface/gameApi
 	./endpoint/interface/playerApi
 	./endpoint/interface/roomApi
-	./endpoint/interface/gameApi
 	./logic/gameManager
 	./logic/playerManager
 	./logic/roomManager
