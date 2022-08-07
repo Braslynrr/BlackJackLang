@@ -20,7 +20,7 @@ func TestSingletonInstance(t *testing.T) {
 // TestAddPlayer calls gamemanager.AddPlayer checking the player should be added correctly
 func TestAddPlayer(t *testing.T) {
 	gm := NewGameManager()
-	py := player.NewPlayer("05", "name", false)
+	py := player.NewPlayer("05", "name1", false)
 	player, err := gm.AddPlayer(py)
 	if err != nil {
 		t.Fatalf("Addplayer should not return any error, error:%v", err.Error())
@@ -46,7 +46,7 @@ func TestAddRoom(t *testing.T) {
 // TestJoinGame calls gamemanager.JoinGame checking the player will be joined correctly
 func TestJoinGame(t *testing.T) {
 	gm := NewGameManager()
-	py := player.NewPlayer("03", "name", false)
+	py := player.NewPlayer("03", "name2", false)
 	gm.AddPlayer(py)
 	rm := room.NewRoom("02", "", false)
 	gm.AddRoom(rm)
