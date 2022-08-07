@@ -5,6 +5,7 @@ import (
 
 	"blackjack.com/delear"
 	"blackjack.com/player"
+	"github.com/gorilla/websocket"
 )
 
 type Room struct {
@@ -55,4 +56,19 @@ func (room *Room) GetDelearReady() {
 
 func (room Room) IsPublic() bool {
 	return !room.isprivate
+}
+
+func (room Room) CheckJoin(r Room) bool {
+	return room.Code == r.Code && (r.IsPublic() || room.password == r.password)
+}
+
+func (room *Room) AllowConnection(player player.Player, conn *websocket.Conn) bool {
+	for _, serverPlayer := range room.Players {
+		if serverPlayer.IsEqual(player) {
+			serverPlayer.SetConeccion(conn)
+			conn.WriteJSON(map[string]string{"status": "connected"})
+			return true
+		}
+	}
+	return false
 }

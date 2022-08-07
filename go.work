@@ -9,6 +9,7 @@ use (
 	./endpoint
 	./endpoint/interface/playerApi
 	./endpoint/interface/roomApi
+	./endpoint/interface/gameApi
 	./logic/gameManager
 	./logic/playerManager
 	./logic/roomManager

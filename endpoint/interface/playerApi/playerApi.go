@@ -1,12 +1,14 @@
 package playerapi
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
 	"blackjack.com/gamemanager"
 	"blackjack.com/player"
 	"github.com/gin-gonic/gin"
+	ginsession "github.com/go-session/gin-session"
 )
 
 func GetAll(c *gin.Context) {
@@ -35,6 +37,12 @@ func NewPlayer(c *gin.Context) {
 	player, err := gamemanager.NewGameManager().PlayerManager.AddPlayer(player)
 
 	if err == nil {
+
+		store := ginsession.FromContext(c)
+		val, _ := json.Marshal(player)
+		store.Set("player", val)
+		_ = store.Save()
+
 		c.IndentedJSON(http.StatusOK, player)
 		return
 	}

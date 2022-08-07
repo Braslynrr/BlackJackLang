@@ -13,7 +13,7 @@ type PlayerManager struct {
 
 type playerLambda func(player.Player) bool
 
-func nameFunc(name string) func(player player.Player) bool {
+func nameFunc(name string) playerLambda {
 	return func(player player.Player) bool {
 		return player.Name == name
 	}

@@ -2,10 +2,11 @@ package player
 
 import (
 	"blackjack.com/cart"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type Player struct {
+	obj        interface{}
 	Code       string      `json:"code"`
 	Name       string      `json:"name"`
 	IsHost     bool        `json:"ishost"`
@@ -28,4 +29,8 @@ func (player *Player) SetConeccion(connection *websocket.Conn) {
 
 func (player *Player) GetConnection() *websocket.Conn {
 	return player.connection
+}
+
+func (player Player) IsEqual(ply Player) bool {
+	return player.Code == ply.Code && player.Name == player.Name
 }

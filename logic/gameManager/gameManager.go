@@ -7,6 +7,7 @@ import (
 	"blackjack.com/playermanager"
 	"blackjack.com/room"
 	"blackjack.com/roommanager"
+	"github.com/gorilla/websocket"
 )
 
 var lock = &sync.Mutex{}
@@ -40,4 +41,15 @@ func (game *gameManager) AddPlayer(player *player.Player) error {
 func (game *gameManager) AddRoom(room *room.Room) (serverRoom *room.Room, err error) {
 	serverRoom = game.RoomManager.AddRoom(room)
 	return
+}
+
+func (game *gameManager) JoinGame(player *player.Player, room room.Room) (room.Room, error) {
+	serverRoom := game.RoomManager.FindFirtsOrDefault(roommanager.RoomPredicate(room))
+	serverRoom, err := serverRoom.JoinPlayer(player)
+	return *serverRoom, err
+}
+
+func (game *gameManager) ConnectToRoom(conn *websocket.Conn, player player.Player, room room.Room) {
+
+	game.RoomManager.ConnectToRoom(conn, player, room)
 }
