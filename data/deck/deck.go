@@ -7,16 +7,19 @@ import (
 	"math/rand"
 	"time"
 
-	"blackjack.com/cart"
+	"blackjack.com/card"
 )
 
+var DeckJson string = "./data/deck/deck.json"
+
 type Deck struct {
-	Carts        []cart.Cart `json:"carts"`
-	CurrentCarts int8        `json:"currentcarts"`
+	Cards        []card.Card `json:"cards"`
+	CurrentCards int8        `json:"currentcards"`
 }
 
+//NewDeck creates a new deck
 func NewDeck() (deck *Deck, err error) {
-	content, err := ioutil.ReadFile("./data/deck/deck.json")
+	content, err := ioutil.ReadFile(DeckJson)
 	if err != nil {
 		return
 	}
@@ -24,24 +27,26 @@ func NewDeck() (deck *Deck, err error) {
 	if err != nil {
 		return
 	}
-	deck.CurrentCarts = 52
+	deck.CurrentCards = 52
 	return
 }
 
+// ShuffleDeck randomizes the Deck
 func (deck Deck) ShuffleDeck() {
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(deck.Carts), func(i, j int) {
-		deck.Carts[i], deck.Carts[j] = deck.Carts[j], deck.Carts[i]
+	rand.Shuffle(len(deck.Cards), func(i, j int) {
+		deck.Cards[i], deck.Cards[j] = deck.Cards[j], deck.Cards[i]
 	})
 }
 
-func (deck *Deck) Peek() (cart cart.Cart, err error) {
+// Peek takes one card from the deck
+func (deck *Deck) Peek() (card card.Card, err error) {
 	err = nil
-	if deck.CurrentCarts == 0 {
-		return cart, errors.New("There aren't carts")
+	if deck.CurrentCards == 0 {
+		return card, errors.New("There aren't cards")
 	}
-	cart = deck.Carts[0]
-	deck.Carts = deck.Carts[1:len(deck.Carts)]
-	deck.CurrentCarts--
+	card = deck.Cards[0]
+	deck.Cards = deck.Cards[1:len(deck.Cards)]
+	deck.CurrentCards--
 	return
 }

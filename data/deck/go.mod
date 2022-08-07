@@ -2,6 +2,6 @@ module blackjack.com/deck
 
 go 1.18
 
-replace blackjack.com/cart => ../cart
+replace blackjack.com/card => ../card
 
-require blackjack.com/cart v0.0.0-00010101000000-000000000000
+require blackjack.com/card v0.0.0-00010101000000-000000000000

@@ -2,7 +2,7 @@ go 1.18
 
 use (
 	./data/delear
-	./data/cart
+	./data/card
 	./data/deck
 	./data/player
 	./data/room

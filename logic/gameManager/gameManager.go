@@ -17,10 +17,12 @@ type gameManager struct {
 	PlayerManager playermanager.PlayerManager
 }
 
+// singleton instance
 var (
 	instance *gameManager
 )
 
+// NewGameManager creates and returns the gameManager instance
 func NewGameManager() *gameManager {
 	lock.Lock()
 	defer lock.Unlock()
@@ -33,23 +35,26 @@ func NewGameManager() *gameManager {
 	return instance
 }
 
-func (game *gameManager) AddPlayer(player *player.Player) error {
-	game.PlayerManager.AddPlayer(player)
-	return nil
+// AddPlayer adds a player to the player list
+func (game *gameManager) AddPlayer(player *player.Player) (serverplayer *player.Player, err error) {
+	serverplayer, err = game.PlayerManager.AddPlayer(player)
+	return serverplayer, err
 }
 
+// AddRoom adds a room to the rooms list
 func (game *gameManager) AddRoom(room *room.Room) (serverRoom *room.Room, err error) {
 	serverRoom = game.RoomManager.AddRoom(room)
 	return
 }
 
+// JoinGame joins a player into a its selected room
 func (game *gameManager) JoinGame(player *player.Player, room room.Room) (room.Room, error) {
 	serverRoom := game.RoomManager.FindFirtsOrDefault(roommanager.RoomPredicate(room))
 	serverRoom, err := serverRoom.JoinPlayer(player)
 	return *serverRoom, err
 }
 
+// ConnectToRoom connects the player with the room using the WS
 func (game *gameManager) ConnectToRoom(conn *websocket.Conn, player player.Player, room room.Room) {
-
 	game.RoomManager.ConnectToRoom(conn, player, room)
 }
