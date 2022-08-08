@@ -1,6 +1,7 @@
 package roommanager
 
 import (
+	"errors"
 	"fmt"
 
 	"blackjack.com/player"
@@ -66,4 +67,19 @@ func (room *RoomManager) GetPublicRooms() []*room.Room {
 func (manager *RoomManager) ConnectToRoom(conn *websocket.Conn, player player.Player, room room.Room) bool {
 	serverRoom := manager.FindFirtsOrDefault(RoomPredicate(room))
 	return serverRoom.AllowConnection(player, conn)
+}
+
+// StartGame sets the game in a initial state and notifies to the next player to play
+func (manager *RoomManager) StartGame(player player.Player, room room.Room) (bool, error) {
+	serverRoom := manager.FindFirtsOrDefault(RoomPredicate(room))
+	if serverRoom != nil {
+
+		if serverRoom.IsPlayerHost(player) {
+			err := serverRoom.StartGame(true)
+			return true, err
+		} else {
+			return false, errors.New(fmt.Sprintf("Player is not the host of the room %v", serverRoom.Code))
+		}
+	}
+	return false, errors.New(fmt.Sprintf("The Room %v does not exist, imposible to start a game", serverRoom.Code))
 }

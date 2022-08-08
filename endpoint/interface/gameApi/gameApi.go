@@ -26,6 +26,8 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// ConnectToGame Conects the gin server with the WS server,
+// also finds the current user in session
 func ConnectToGame(c *gin.Context) {
 	store := ginsession.FromContext(c)
 	data, ok := store.Get("player")
@@ -39,15 +41,29 @@ func ConnectToGame(c *gin.Context) {
 	}
 	gameHandler(c.Writer, c.Request, *player)
 }
+
+//printError prints error to the user
 func printError(connection *websocket.Conn, err error) {
 	connection.WriteJSON(err)
 }
+
+// connectToRoom looks if the user is alredy loged in, to allows it connecting to the room
 func connectToRoom(connection *websocket.Conn, player player.Player, info any) bool {
 	var room room.Room
 	mapstructure.Decode(info, &room)
 	return gamemanager.NewGameManager().RoomManager.ConnectToRoom(connection, player, room)
 
 }
+
+// startGame sets the game in the initial status
+func startGame(player player.Player, info any) (ok bool, err error) {
+	var room room.Room
+	mapstructure.Decode(info, &room)
+	ok, err = gamemanager.NewGameManager().StartGame(player, room)
+	return
+}
+
+// gameHandler process all user request, send information to the player as well
 func gameHandler(w http.ResponseWriter, r *http.Request, player player.Player) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	var connected bool = true
@@ -67,6 +83,8 @@ func gameHandler(w http.ResponseWriter, r *http.Request, player player.Player) {
 			case "connect":
 				connected = connectToRoom(conn, player, message.Info)
 			case "start":
+				_, err := startGame(player, message.Info)
+				printError(conn, err)
 			case "play":
 			case "kick":
 			default:

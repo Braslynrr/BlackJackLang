@@ -58,3 +58,8 @@ func (game *gameManager) JoinGame(player *player.Player, room room.Room) (room.R
 func (game *gameManager) ConnectToRoom(conn *websocket.Conn, player player.Player, room room.Room) {
 	game.RoomManager.ConnectToRoom(conn, player, room)
 }
+
+// StartGame runs the StarGame method of roomManager
+func (game *gameManager) StartGame(player player.Player, room room.Room) (bool, error) {
+	return game.RoomManager.StartGame(player, room)
+}

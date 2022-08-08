@@ -1,4 +1,4 @@
-module blackjack.com/delear
+module blackjack.com/dealer
 
 go 1.18
 

@@ -55,7 +55,7 @@ func JoinRoom(c *gin.Context) {
 	}
 	serverRoom, err := gamemanager.NewGameManager().JoinGame(player, *room)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusNotAcceptable, err)
+		c.AbortWithStatusJSON(http.StatusNotAcceptable, err.Error())
 		return
 	}
 	serverRoom.Players = nil

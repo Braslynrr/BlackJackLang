@@ -10,11 +10,11 @@ import (
 	"blackjack.com/card"
 )
 
-var DeckJson string = "./data/deck/deck.json"
+var DeckJson string = "../data/deck/deck.json"
 
 type Deck struct {
-	Cards        []card.Card `json:"cards"`
-	CurrentCards int8        `json:"currentcards"`
+	Cards        []*card.Card `json:"cards"`
+	CurrentCards int8         `json:"currentCards"`
 }
 
 //NewDeck creates a new deck
@@ -40,10 +40,10 @@ func (deck Deck) ShuffleDeck() {
 }
 
 // Peek takes one card from the deck
-func (deck *Deck) Peek() (card card.Card, err error) {
+func (deck *Deck) Peek() (card *card.Card, err error) {
 	err = nil
 	if deck.CurrentCards == 0 {
-		return card, errors.New("There aren't cards")
+		return card, errors.New("There aren't Cards")
 	}
 	card = deck.Cards[0]
 	deck.Cards = deck.Cards[1:len(deck.Cards)]
