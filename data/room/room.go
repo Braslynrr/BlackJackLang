@@ -3,7 +3,8 @@ package room
 import (
 	"errors"
 
-	"blackjack.com/delear"
+	"blackjack.com/dealer"
+	"blackjack.com/deck"
 	"blackjack.com/player"
 	"github.com/gorilla/websocket"
 )
@@ -11,15 +12,15 @@ import (
 type Room struct {
 	Code       string `json:"code"`
 	password   string
-	Delear     delear.Delear   `json:"delear"`
-	Players    []player.Player `json:"players"`
-	PlayingNow bool            `json:"playingnow"`
+	Dealer     dealer.Dealer    `json:"-"`
+	Players    []*player.Player `json:"-"`
+	PlayingNow bool             `json:"playingnow"`
 	isprivate  bool
 }
 
 // NewRoom creates a new room
 func NewRoom(code string, password string, isprivate bool) (room *Room) {
-	return &Room{Code: code, password: password, Delear: delear.NewDelear(), Players: make([]player.Player, 0, 8), isprivate: isprivate}
+	return &Room{Code: code, password: password, Dealer: dealer.NewDealer(), Players: make([]*player.Player, 0, 8), isprivate: isprivate}
 }
 
 // JoinPlayer checks id a player is joinable to the room
@@ -30,11 +31,11 @@ func (room *Room) JoinPlayer(player *player.Player) (*Room, error) {
 		if room.isPlayerInTheRoom(*player) != nil {
 			return room, nil
 		}
-		return nil, errors.New("There's a game in progess, wait for it.")
+		return room, errors.New("The game is in progess, please wait.")
 	} else if room.isPlayerInTheRoom(*player) != nil {
 		return room, nil
 	}
-	room.Players = append(room.Players, *player)
+	room.Players = append(room.Players, player)
 	return room, nil
 }
 
@@ -42,26 +43,43 @@ func (room *Room) JoinPlayer(player *player.Player) (*Room, error) {
 func (room *Room) NextPlayertoPlay() *player.Player {
 	for _, currentplayer := range room.Players {
 		if !currentplayer.IsFinished {
-			return &currentplayer
+			return currentplayer
 		}
 	}
 	return nil
 }
 
 // StartGame sets the game in a initial good state
-func (room *Room) StartGame() (err error) {
+func (room *Room) StartGame(send bool) (err error) {
 	room.PlayingNow = true
-	err = room.Delear.GetDeck()
-	return
+	err = room.Dealer.GetDeck()
+	room.GetDealerReady()
+	room.cleanHands()
+	room.setHands(send)
+	if send {
+
+		dealer := &dealer.Dealer{
+			Hand: room.Dealer.Hand,
+			Deck: deck.Deck{Cards: nil, CurrentCards: room.Dealer.Deck.CurrentCards},
+		}
+		msg := map[string]interface{}{
+			"action": "updateDealer",
+			"dealer": dealer}
+		room.SendMessageToAll(msg)
+
+		room.NextPlayertoPlay().GetConnection().WriteJSON(map[string]string{"action": "play"})
+	}
+	return err
 }
 
-// GetDelearReady sets the delear ready to play
-func (room *Room) GetDelearReady() {
-	room.Delear.ShuffleDeck()
-	card, _ := room.Delear.GetCard()
-	room.Delear.AddtoHand(card)
-	card, _ = room.Delear.GetCard()
-	room.Delear.AddtoHand(card)
+// GetDealerReady sets the dealer ready to play
+func (room *Room) GetDealerReady() {
+	room.Dealer.ShuffleDeck()
+	card, _ := room.Dealer.GetCard()
+	room.Dealer.AddtoHand(card)
+	card, _ = room.Dealer.GetCard()
+	room.Dealer.AddtoHand(card)
+
 }
 
 // IsPublic checks if the room is public
@@ -91,12 +109,60 @@ func (room *Room) AllowConnection(player player.Player, conn *websocket.Conn) bo
 func (room *Room) isPlayerInTheRoom(player player.Player) *player.Player {
 	for _, ply := range room.Players {
 		if ply.IsEqual(player) {
-			return &ply
+			return ply
 		}
 	}
 	return nil
 }
 
+// IsEqual checks if two rooms are alike
 func (room Room) IsEqual(rm Room) bool {
-	return room.Code == rm.Code && room.password == rm.password
+	return room.Code == rm.Code && (room.IsPublic() || room.password == rm.password)
+}
+
+// cleanHands cleans all player's hands
+func (room *Room) cleanHands() {
+
+	for _, player := range room.Players {
+		player.ClearHand()
+	}
+
+}
+
+// IsPlayerHost verifies if player is host of the room
+func (room *Room) IsPlayerHost(player player.Player) bool {
+	for _, ply := range room.Players {
+		if ply.IsEqual(player) {
+			return ply.IsHost
+		}
+	}
+	return false
+}
+
+// SendMessageToAll sends a message to all players
+func (room Room) SendMessageToAll(msg map[string]interface{}) {
+	for _, player := range room.Players {
+		player.GetConnection().WriteJSON(msg)
+	}
+}
+
+// give two carts to each player
+func (room *Room) setHands(send bool) error {
+	for _, player := range room.Players {
+		cart, err := room.Dealer.GetCard()
+		if err != nil {
+			return err
+		}
+		player.AddCardToHand(*cart)
+		cart, err = room.Dealer.GetCard()
+		if err != nil {
+			return err
+		}
+		player.AddCardToHand(*cart)
+		if send {
+			msg := map[string]interface{}{"action": "updateHand", "hand": player.Hand}
+			player.GetConnection().WriteJSON(msg)
+		}
+	}
+	return nil
 }

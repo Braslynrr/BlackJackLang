@@ -2,7 +2,7 @@ module blackjack.com/endpoint
 
 go 1.18
 
-replace blackjack.com/delear => ..\data\delear
+replace blackjack.com/dealer => ..\data\dealer
 
 require (
 	github.com/gin-gonic/gin v1.8.1

@@ -94,8 +94,105 @@ func TestStartGame(t *testing.T) {
 	room := NewRoom("01", "", false)
 	ply := player.NewPlayer("01", "name", true)
 	room.JoinPlayer(ply)
-	err := room.StartGame()
+	err := room.StartGame(false)
 	if err != nil {
-		t.Fatalf("StartGame() shout not return an error: %v", err.Error())
+		t.Fatalf("StartGame() should not return an error: %v", err.Error())
+	}
+}
+
+// TestDealerReady calls room.GetDealerReady() checking dealer is ready
+func TestDealerReady(t *testing.T) {
+	room := NewRoom("01", "", false)
+	room.GetDealerReady()
+	if len(room.Dealer.Hand) != 2 {
+		t.Fatalf("Dealer should has two cards %v", room.Dealer.Hand)
+	}
+	if len(room.Dealer.Deck.Cards) != int(room.Dealer.Deck.CurrentCards) {
+		t.Fatalf("Both values should be alike %v==%v", len(room.Dealer.Deck.Cards), room.Dealer.Deck.CurrentCards)
+	}
+}
+
+// TestRoomAreAlike calls room.IsEqual checking two rooms are alike
+func TestRoomAreAlike(t *testing.T) {
+	room1 := NewRoom("01", "", false)
+	room2 := NewRoom("01", "", false)
+	if !room1.IsEqual(*room2) {
+		t.Fatalf("The rooms should be equal. %v==%v", room1, room2)
+	}
+}
+
+// TestIsPlayerHost calls room.IsPlayerHost checking the player is host of the room
+func TestIsPlayerHost(t *testing.T) {
+	room1 := NewRoom("01", "", false)
+	ply := player.NewPlayer("01", "name", true)
+	room1.JoinPlayer(ply)
+	if !room1.IsPlayerHost(*ply) {
+		t.Fatalf("Player should be the host of the room %v", room1)
+	}
+}
+
+// TestIsPlayerInTheRoom calls room.isPlayerInTheRoom checking if the player is in the room
+func TestIsPlayerInTheRoom(t *testing.T) {
+	room1 := NewRoom("01", "", false)
+	ply := player.NewPlayer("01", "name", true)
+	room1.JoinPlayer(ply)
+	ply = player.NewPlayer("02", "name1", false)
+	room1.JoinPlayer(ply)
+	ply2 := player.NewPlayer("04", "name3", false)
+	room1.JoinPlayer(ply2)
+	ply = player.NewPlayer("03", "name2", false)
+	room1.JoinPlayer(ply)
+	if room1.isPlayerInTheRoom(*ply2) == nil {
+		t.Fatalf("Player should be in the room %v", room1)
+	}
+}
+
+// TestSetHands calls room.setHands checking all the players have two card in their hands
+func TestSetHands(t *testing.T) {
+	deck.DeckJson = "../deck/deck.json"
+	room1 := NewRoom("01", "", false)
+	room1.Dealer.GetDeck()
+	room1.GetDealerReady()
+	ply := player.NewPlayer("01", "name", true)
+	room1.JoinPlayer(ply)
+	ply = player.NewPlayer("02", "name1", false)
+	room1.JoinPlayer(ply)
+	ply2 := player.NewPlayer("04", "name3", false)
+	room1.JoinPlayer(ply2)
+	ply = player.NewPlayer("03", "name2", false)
+	room1.JoinPlayer(ply)
+	err := room1.setHands(false)
+	if err != nil {
+		t.Fatalf("setHands(false) should not return errros. %v", err.Error())
+	}
+
+	for _, player := range room1.Players {
+		if len(player.Hand) != 2 {
+			t.Fatalf("Player%v should has tow cards", player)
+		}
+	}
+
+}
+
+// TestClearHands calls room.cleanHands checking it cleans all players hand
+func TestClearHands(t *testing.T) {
+	deck.DeckJson = "../deck/deck.json"
+	room1 := NewRoom("01", "", false)
+	room1.Dealer.GetDeck()
+	room1.GetDealerReady()
+	ply := player.NewPlayer("01", "name", true)
+	room1.JoinPlayer(ply)
+	ply = player.NewPlayer("02", "name1", false)
+	room1.JoinPlayer(ply)
+	ply2 := player.NewPlayer("04", "name3", false)
+	room1.JoinPlayer(ply2)
+	ply = player.NewPlayer("03", "name2", false)
+	room1.JoinPlayer(ply)
+	room1.setHands(false)
+	room1.cleanHands()
+	for _, player := range room1.Players {
+		if len(player.Hand) != 0 {
+			t.Fatalf("Player%v should not has cards", player)
+		}
 	}
 }

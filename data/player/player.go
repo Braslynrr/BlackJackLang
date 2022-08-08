@@ -39,3 +39,8 @@ func (player *Player) GetConnection() *websocket.Conn {
 func (player Player) IsEqual(ply Player) bool {
 	return player.Code == ply.Code && player.Name == player.Name
 }
+
+// ClearHand clears player hand
+func (player *Player) ClearHand() {
+	player.Hand = make([]card.Card, 0)
+}

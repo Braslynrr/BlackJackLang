@@ -3,7 +3,7 @@ go 1.18
 use (
 	./data/card
 	./data/deck
-	./data/delear
+	./data/dealer
 	./data/player
 	./data/room
 	./endpoint

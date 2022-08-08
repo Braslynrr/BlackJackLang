@@ -5,21 +5,40 @@
 <button onclick="createRoom()">Create room</button>
 <input id="room" type="text" />
 <button onclick="connectToRoom()">connect to room</button>
+<p></p>
+<button id="start" onclick="startGame()" hidden>Start Game</button>
 <pre id="output"></pre>
 <script>
     var username = document.getElementById("username");
     var password = document.getElementById("password");
     var inputRoom = document.getElementById("room");
+    var start = document.getElementById("start")
     var output = document.getElementById("output");
     var socket = undefined
-
+    var currentRoom= undefined
     function onOpen() {
         output.innerHTML += "Status: game connected\n";
     };
 
     function onMessage(e) {
-        let room = JSON.parse(e.data)
-        output.innerHTML += "Server: room " + room.status + "\n";
+        let message = JSON.parse(e.data)
+        switch(message.action){
+            case "updateDealer":
+                output.innerHTML += `Dealer is ${JSON.stringify(message.dealer)}\n`
+                break;
+            case "updateHand":
+                output.innerHTML += `My hand is ${JSON.stringify(message.hand)}\n`
+                break;
+            case "play":
+                output.innerHTML += `I have to play now\n`
+                break;
+            default:
+                if(message.status==undefined)
+                    alert(JSON.stringify(message))
+                else
+                    output.innerHTML += "Server: room " + message.status + "\n";
+        }
+        
     };
 
     function onError(e){
@@ -57,7 +76,7 @@
             isprivate:0
             }) })  
             let room = await bicho2.json() 
-
+            currentRoom={code:room.code}
             output.innerHTML+=`Room ${room.code} created\n`
 
             socket = new WebSocket("ws://localhost:8080/game");
@@ -67,12 +86,12 @@
            setTimeout(() => {
             socket.send(JSON.stringify({action:"connect",info:room}))
            }, 100);
-
+           start.style.display = "block"
     }
 
     async function connectToRoom(){
 
-        let bicho2 = await fetch("http://localhost:8080/game",{
+        let response = await fetch("http://localhost:8080/game",{
             method: "post",
             headers: {
                 'Accept': 'application/json',
@@ -84,16 +103,29 @@
             code:inputRoom.value,
             password: password.value,
             }) })  
-            let room = await bicho2.json() 
+           
+           
+            let room = await response.json()
 
-            output.innerHTML+=`trying to connect to room ${room.code} \n`
-        socket = new WebSocket("ws://localhost:8080/game");
-            socket.onopen=onOpen
-            socket.onerror=onError
-            socket.onmessage=onMessage
-           setTimeout(() => {
-            socket.send(JSON.stringify({action:"connect",info:room}))
-           }, 100);
+           if(response.status==200){
+                currentRoom={code:room.code}
+                output.innerHTML+=`trying to connect to room ${room.code} \n`
+                socket = new WebSocket("ws://localhost:8080/game");
+                socket.onopen=onOpen
+                socket.onerror=onError
+                socket.onmessage=onMessage
+            
+                setTimeout(() => {
+                    socket.send(JSON.stringify({action:"connect",info:room}))
+                }, 100);
+            }else{
+                output.innerHTML+= response.statusText +": "+ JSON.stringify(room)+"\n"
+            }
     }
 
+    function startGame(){
+        setTimeout(() => {
+            socket.send(JSON.stringify({action:"start",info:currentRoom}))
+           }, 100);
+    }
 </script>

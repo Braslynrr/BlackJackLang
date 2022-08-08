@@ -16,7 +16,7 @@ func TestEqual(t *testing.T) {
 	}
 }
 
-// TestAddToHandt call player.AddCardToHand checking a good process
+// TestAddToHandt calls player.AddCardToHand checking a good process
 func TestAddToHandt(t *testing.T) {
 	player1 := NewPlayer("01", "name", false)
 	card := card.NewCard("diamonds", "AS", 11)
@@ -24,5 +24,18 @@ func TestAddToHandt(t *testing.T) {
 	if len(player1.Hand) < 0 {
 		t.Log("player should has one card.")
 		t.Fail()
+	}
+}
+
+// TestClearHand calls player.ClearHand() checking player's hand is empty
+func TestClearHand(t *testing.T) {
+	player1 := NewPlayer("01", "name", false)
+	card1 := card.NewCard("diamonds", "AS", 11)
+	player1.AddCardToHand(*card1)
+	card1 = card.NewCard("diamonds", "King", 10)
+	player1.AddCardToHand(*card1)
+	player1.ClearHand()
+	if len(player1.Hand) != 0 {
+		t.Fatalf("player's %v hand should be empty", player1)
 	}
 }
