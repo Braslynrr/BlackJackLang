@@ -66,7 +66,12 @@ func (room *RoomManager) GetPublicRooms() []*room.Room {
 // ConnectToRoom connects the Ws with the player in its room
 func (manager *RoomManager) ConnectToRoom(conn *websocket.Conn, player player.Player, room room.Room) bool {
 	serverRoom := manager.FindFirtsOrDefault(RoomPredicate(room))
-	return serverRoom.AllowConnection(player, conn)
+	ok := serverRoom.AllowConnection(player, conn)
+	if ok {
+		msg := map[string]interface{}{"action": "notify", "status": fmt.Sprintf("%v joined", player.Name), "player": player}
+		serverRoom.SendMessageToAll(msg)
+	}
+	return ok
 }
 
 // StartGame sets the game in a initial state and notifies to the next player to play
