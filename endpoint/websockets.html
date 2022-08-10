@@ -1,18 +1,29 @@
-<!-- websockets.html -->
-<input id="username" type="text" />
-<button onclick="createUser()">Create user</button>
-<input id="password" type="text" />
-<button onclick="createRoom()">Create room</button>
-<input id="room" type="text" />
-<button onclick="connectToRoom()">connect to room</button>
-<p></p>
-<button id="start" onclick="startGame()" hidden>Start Game</button>
-<pre id="output"></pre>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>BlackJack test page</title>
+        </head>
+    <body>
+        <input id="username" type="text" />
+        <button onclick="createUser()">Create user</button>
+        <input id="password" type="text" />
+        <button onclick="createRoom()">Create room</button>
+        <input id="room" type="text" />
+        <button onclick="connectToRoom()">connect to room</button>
+        <p></p>
+        <button id="start" onclick="startGame()" hidden>Start Game</button>
+        <button id="requestCard" onclick="requestCard()" hidden>Hey Delear! give me a card</button>
+        <button id="passTurn" onclick="passTurn()" hidden>I'm Done</button>
+        <pre id="output"></pre>
+    </body>
+
 <script>
     var username = document.getElementById("username");
     var password = document.getElementById("password");
     var inputRoom = document.getElementById("room");
-    var start = document.getElementById("start")
+    var start = document.getElementById("start");
+    var requestcard = document.getElementById("requestCard")
+    var passturn = document.getElementById("passTurn")
     var output = document.getElementById("output");
     var socket = undefined
     var currentRoom= undefined
@@ -31,20 +42,59 @@
                 break;
             case "play":
                 output.innerHTML += `I have to play now\n`
+                requestcard.style.display = "block"
+                passturn.style.display = "block"
+                break;
+            case "newCard":
+                output.innerHTML += `I recieve a new card :D ${JSON.stringify(message.card)}\n`
+                if(!message.stillplaying){
+                    output.innerHTML +="I over passed the limit :c tons of greed"
+                    requestcard.style.display = "none"
+                    passturn.style.display = "none"
+                }
+                break;
+            case "turnFinal":
+                requestcard.style.display = "none"
+                passturn.style.display = "none"
+                break;
+            case "notify":
+                if(message.status==="game started")
+                    start.style.display = "none"
+                output.innerHTML += "Server: " + message.status + "\n";
                 break;
             default:
-                if(message.status==undefined)
-                    alert(JSON.stringify(message))
-                else
-                    output.innerHTML += "Server: room " + message.status + "\n";
+                alert(JSON.stringify(message))
+                output.innerHTML += "Unexpected Message\n";
         }
         
     };
+
+
+    function waitForSocketConnection(socket, callback){
+    setTimeout(
+        function () {
+            if (socket.readyState === 1) {
+                if (callback != null){
+                    callback();
+                }
+            } else {
+                waitForSocketConnection(socket, callback);
+            }
+
+        }, 5); // wait 5 milisecond for the connection...
+    }
 
     function onError(e){
         output.innerHTML += `error ${e.data}`
     }
 
+    async function requestCard(){
+       waitForSocketConnection(socket,function(){socket.send(JSON.stringify({action:"play",info:"requestCard"}))})
+    }
+
+    async function passTurn(){
+        waitForSocketConnection(socket,function(){socket.send(JSON.stringify({action:"play",info:"passTurn"}))})
+    }
 
     async function createUser(){
         let bicho = await fetch("http://localhost:8080/player",{
@@ -83,9 +133,7 @@
             socket.onopen=onOpen
             socket.onerror=onError
             socket.onmessage=onMessage
-           setTimeout(() => {
-            socket.send(JSON.stringify({action:"connect",info:room}))
-           }, 100);
+            waitForSocketConnection(socket,function(){socket.send(JSON.stringify({action:"connect",info:room}))})
            start.style.display = "block"
     }
 
@@ -115,17 +163,15 @@
                 socket.onerror=onError
                 socket.onmessage=onMessage
             
-                setTimeout(() => {
-                    socket.send(JSON.stringify({action:"connect",info:room}))
-                }, 100);
+                waitForSocketConnection(socket,function(){socket.send(JSON.stringify({action:"connect",info:room}))})
             }else{
                 output.innerHTML+= response.statusText +": "+ JSON.stringify(room)+"\n"
             }
     }
 
     function startGame(){
-        setTimeout(() => {
-            socket.send(JSON.stringify({action:"start",info:currentRoom}))
-           }, 100);
+        waitForSocketConnection(socket, function(){socket.send(JSON.stringify({action:"start"}))});
     }
 </script>
+
+</html>

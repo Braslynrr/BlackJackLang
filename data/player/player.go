@@ -10,10 +10,13 @@ type Player struct {
 	Code       string      `json:"code"`
 	Name       string      `json:"name"`
 	IsHost     bool        `json:"ishost"`
-	IsFinished bool        `json:"isfinished"`
+	IsFinished bool        `json:"-"`
 	Hand       []card.Card `json:"hand"`
 	connection *websocket.Conn
 }
+
+// Max value of the cards of hand summed before losing
+var MAXVALUE int8 = 21
 
 // NewPlayer creates a new PLayer
 func NewPlayer(code string, name string, ishost bool) (player *Player) {
@@ -43,4 +46,18 @@ func (player Player) IsEqual(ply Player) bool {
 // ClearHand clears player hand
 func (player *Player) ClearHand() {
 	player.Hand = make([]card.Card, 0)
+}
+
+// CountHandValue sums each card value and return the result
+func (player Player) CountHandValue() (result int8) {
+	result = 0
+	for _, card := range player.Hand {
+		result += card.Value
+	}
+	return
+}
+
+// StillPlaying returns if the player can taking more cards
+func (player Player) StillPlaying() bool {
+	return player.CountHandValue() <= MAXVALUE
 }

@@ -1,6 +1,8 @@
 package gamemanager
 
 import (
+	"errors"
+	"strings"
 	"sync"
 
 	"blackjack.com/player"
@@ -62,4 +64,21 @@ func (game *gameManager) ConnectToRoom(conn *websocket.Conn, player player.Playe
 // StartGame runs the StarGame method of roomManager
 func (game *gameManager) StartGame(player player.Player, room room.Room) (bool, error) {
 	return game.RoomManager.StartGame(player, room)
+}
+
+// PlayerPlay performs the player action
+func (game *gameManager) PlayerPlay(player player.Player, room room.Room, action string) (bool, error) {
+	serverRoom := game.RoomManager.FindFirtsOrDefault(roommanager.RoomPredicate(room))
+	if serverRoom == nil {
+		return true, errors.New("unknown Room")
+	}
+	action = strings.ToLower(action)
+	switch action {
+	case "requestcard":
+		return serverRoom.RequestCard(player)
+	case "passturn":
+		return serverRoom.PassTurn(player)
+	default:
+		return true, errors.New("Uknown Action")
+	}
 }

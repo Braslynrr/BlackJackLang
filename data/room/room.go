@@ -67,6 +67,8 @@ func (room *Room) StartGame(send bool) (err error) {
 			"dealer": dealer}
 		room.SendMessageToAll(msg)
 
+		msg = map[string]interface{}{"action": "notify", "status": "game started"}
+		room.SendMessageToAll(msg)
 		room.NextPlayertoPlay().GetConnection().WriteJSON(map[string]string{"action": "play"})
 	}
 	return err
@@ -98,7 +100,7 @@ func (room *Room) AllowConnection(player player.Player, conn *websocket.Conn) bo
 	for _, serverPlayer := range room.Players {
 		if serverPlayer.IsEqual(player) {
 			serverPlayer.SetConeccion(conn)
-			conn.WriteJSON(map[string]string{"status": "connected"})
+			conn.WriteJSON(map[string]string{"action": "notify", "status": "connected to the room"})
 			return true
 		}
 	}
@@ -165,4 +167,44 @@ func (room *Room) setHands(send bool) error {
 		}
 	}
 	return nil
+}
+
+// RequestCard requests a card from the dealer and check if the player can still playing
+func (room *Room) RequestCard(player player.Player) (bool, error) {
+	ply := room.NextPlayertoPlay()
+	if ply.IsEqual(player) {
+		card, err := room.Dealer.GetCard()
+		if err != nil {
+			return false, err
+		}
+		ply.AddCardToHand(*card)
+		stillPlaying := ply.StillPlaying()
+		msg := map[string]interface{}{
+			"action":       "newCard",
+			"card":         card,
+			"stillplaying": stillPlaying}
+		ply.GetConnection().WriteJSON(msg)
+		if !stillPlaying {
+			ply.IsFinished = true
+			ply = room.NextPlayertoPlay()
+			ply.GetConnection().WriteJSON(map[string]string{"action": "play"})
+		}
+		return true, nil
+	}
+	return true, errors.New("it's not your turn yet.")
+}
+
+// PassTurn pass the player turn, turning it in finished
+func (room *Room) PassTurn(player player.Player) (bool, error) {
+	ply := room.NextPlayertoPlay()
+	if ply.IsEqual(player) {
+		ply.IsFinished = true
+		msg := map[string]interface{}{
+			"action": "turnFinal"}
+		ply.GetConnection().WriteJSON(msg)
+
+		ply = room.NextPlayertoPlay()
+		ply.GetConnection().WriteJSON(map[string]string{"action": "play"})
+	}
+	return true, errors.New("it's not your turn yet.")
 }
