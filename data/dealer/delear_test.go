@@ -3,6 +3,7 @@ package dealer
 import (
 	"testing"
 
+	"blackjack.com/card"
 	"blackjack.com/deck"
 )
 
@@ -39,4 +40,22 @@ func TestAddtoHand(t *testing.T) {
 	if len(dealer.Hand) < 1 {
 		t.Fatal("Dealer's hand should have one card")
 	}
+}
+
+func TestPLayerHandValue(t *testing.T) {
+	dealer := NewDealer()
+	card1 := card.NewCard("diamonds", "AS", 11)
+	dealer.AddtoHand(card1)
+	card1 = card.NewCard("diamonds", "AS", 11)
+	dealer.AddtoHand(card1)
+	card1 = card.NewCard("diamonds", "AS", 11)
+	dealer.AddtoHand(card1)
+	card1 = card.NewCard("diamonds", "8", 8)
+	dealer.AddtoHand(card1)
+	card1 = card.NewCard("diamonds", "10", 10)
+	dealer.AddtoHand(card1)
+	if dealer.CountHandValue() != 21 {
+		t.Fatalf("Hand Value should be 21, hand: %v", dealer.Hand)
+	}
+
 }
