@@ -51,9 +51,19 @@ func (player *Player) ClearHand() {
 // CountHandValue sums each card value and return the result
 func (player Player) CountHandValue() (result int8) {
 	result = 0
+	AS := 0
 	for _, card := range player.Hand {
 		result += card.Value
+		if card.ValueName == "AS" {
+			AS++
+		}
 	}
+
+	for AS > 0 && result > 21 {
+		AS--
+		result -= 10
+	}
+
 	return
 }
 

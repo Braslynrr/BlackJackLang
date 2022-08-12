@@ -40,6 +40,9 @@
             case "updateHand":
                 output.innerHTML += `My hand is ${JSON.stringify(message.hand)}\n`
                 break;
+            case "updateDealerHand":
+                output.innerHTML += `The Delear took a new card: ${JSON.stringify(message.newCard)}\n`
+                break;
             case "play":
                 output.innerHTML += `I have to play now\n`
                 requestcard.style.display = "block"
@@ -48,7 +51,7 @@
             case "newCard":
                 output.innerHTML += `I recieve a new card :D ${JSON.stringify(message.card)}\n`
                 if(!message.stillplaying){
-                    output.innerHTML +="I over passed the limit :c tons of greed"
+                    output.innerHTML +="I over passed the limit :c tons of greed\n"
                     requestcard.style.display = "none"
                     passturn.style.display = "none"
                 }
@@ -63,8 +66,7 @@
                 output.innerHTML += "Server: " + message.status + "\n";
                 break;
             default:
-                alert(JSON.stringify(message))
-                output.innerHTML += "Unexpected Message\n";
+                output.innerHTML += "Unexpected Message\n"+message+"\n";
         }
         
     };

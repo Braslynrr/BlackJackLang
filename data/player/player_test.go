@@ -39,3 +39,21 @@ func TestClearHand(t *testing.T) {
 		t.Fatalf("player's %v hand should be empty", player1)
 	}
 }
+
+func TestPLayerHandValue(t *testing.T) {
+	player1 := NewPlayer("01", "name", false)
+	card1 := card.NewCard("diamonds", "AS", 11)
+	player1.AddCardToHand(*card1)
+	card1 = card.NewCard("diamonds", "AS", 11)
+	player1.AddCardToHand(*card1)
+	card1 = card.NewCard("diamonds", "AS", 11)
+	player1.AddCardToHand(*card1)
+	card1 = card.NewCard("diamonds", "8", 8)
+	player1.AddCardToHand(*card1)
+	card1 = card.NewCard("diamonds", "10", 10)
+	player1.AddCardToHand(*card1)
+	if player1.CountHandValue() != 21 {
+		t.Fatalf("Hand Value should be 21, hand: %v", player1.Hand)
+	}
+
+}

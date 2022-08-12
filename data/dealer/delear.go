@@ -41,3 +41,21 @@ func (dealer *Dealer) ShuffleDeck() {
 func (dealer *Dealer) AddtoHand(card *card.Card) {
 	dealer.Hand = append(dealer.Hand, card)
 }
+
+// CountHandValue counts dealer's hand value
+func (delear *Dealer) CountHandValue() int8 {
+	var result int8 = 0
+	AS := 0
+	for _, card := range delear.Hand {
+		result += card.Value
+		if card.ValueName == "AS" {
+			AS++
+		}
+	}
+
+	for AS > 0 && result > 21 {
+		AS--
+		result -= 10
+	}
+	return result
+}

@@ -187,7 +187,7 @@ func (room *Room) RequestCard(player player.Player) (bool, error) {
 		if !stillPlaying {
 			ply.IsFinished = true
 			ply = room.NextPlayertoPlay()
-			ply.GetConnection().WriteJSON(map[string]string{"action": "play"})
+			return true, room.CheckDealerTurn(ply)
 		}
 		return true, nil
 	}
@@ -204,7 +204,65 @@ func (room *Room) PassTurn(player player.Player) (bool, error) {
 		ply.GetConnection().WriteJSON(msg)
 
 		ply = room.NextPlayertoPlay()
-		ply.GetConnection().WriteJSON(map[string]string{"action": "play"})
+		return true, room.CheckDealerTurn(ply)
 	}
 	return true, errors.New("it's not your turn yet.")
+}
+
+// CheckDealerTurn checks if it is dealer turn
+func (room *Room) CheckDealerTurn(player *player.Player) error {
+	if player != nil {
+		return player.GetConnection().WriteJSON(map[string]string{"action": "play"})
+	}
+	// delear turn
+	return room.DealerPlay()
+}
+
+// DealerPlay takes the delear decisions
+func (room *Room) DealerPlay() error {
+	room.SendMessageToAll(map[string]interface{}{
+		"action": "notify",
+		"status": "The dealer is going to play"})
+
+	var err error = nil
+	var valueList []int8 = []int8{}
+	for _, ply := range room.Players {
+		valueList = append(valueList, ply.CountHandValue())
+	}
+	// with the value list, delear will decide if take a card
+
+	var delearisDone bool = false
+	// loops until dealer can take a decision
+	for !delearisDone {
+		if room.Dealer.CountHandValue() > 21 {
+			break
+		}
+		var countWins int = 0
+		for _, val := range valueList {
+			if room.Dealer.CountHandValue() > val || val > 21 {
+				countWins++
+			}
+		}
+		if countWins > len(room.Players)/2 {
+			delearisDone = true
+		} else {
+			card, err := room.Dealer.GetCard()
+			if err != nil {
+				room.SendMessageToAll(map[string]interface{}{
+					"action": "notify",
+					"status": err.Error()})
+			}
+			room.Dealer.AddtoHand(card)
+			room.SendMessageToAll(map[string]interface{}{
+				"action":     "updateDealerHand",
+				"dealerHand": room.Dealer.Hand,
+				"newCard":    card})
+		}
+
+	}
+	room.SendMessageToAll(map[string]interface{}{
+		"action": "notify",
+		"status": "the dealer is Done"})
+	// todo: determine winners and losers
+	return err
 }

@@ -1,7 +1,7 @@
 {
     "cards":
     [
-        {"cardType": "Diamond","valueName":"1","value":1},
+        {"cardType": "Diamond","valueName":"10","value":10},
         {"cardType": "Diamond","valueName":"2","value":2},
         {"cardType": "Diamond","valueName":"3","value":3},
         {"cardType": "Diamond","valueName":"4","value":4},
@@ -14,7 +14,7 @@
         {"cardType": "Diamond","valueName":"Queen","value":10},
         {"cardType": "Diamond","valueName":"King","value":10},
         {"cardType": "Diamond","valueName":"AS","value":11},
-        {"cardType": "Spike","valueName":"1","value":1},
+        {"cardType": "Spike","valueName":"10","value":10},
         {"cardType": "Spike","valueName":"2","value":2},
         {"cardType": "Spike","valueName":"3","value":3},
         {"cardType": "Spike","valueName":"4","value":4},
@@ -27,7 +27,7 @@
         {"cardType": "Spike","valueName":"Queen","value":10},
         {"cardType": "Spike","valueName":"King","value":10},
         {"cardType": "Spike","valueName":"AS","value":11},
-        {"cardType": "heart","valueName":"1","value":1},
+        {"cardType": "heart","valueName":"10","value":10},
         {"cardType": "heart","valueName":"2","value":2},
         {"cardType": "heart","valueName":"3","value":3},
         {"cardType": "heart","valueName":"4","value":4},
@@ -40,7 +40,7 @@
         {"cardType": "heart","valueName":"Queen","value":10},
         {"cardType": "heart","valueName":"King","value":10},
         {"cardType": "heart","valueName":"AS","value":11},
-        {"cardType": "Clover","valueName":"1","value":1},
+        {"cardType": "Clover","valueName":"10","value":10},
         {"cardType": "Clover","valueName":"2","value":2},
         {"cardType": "Clover","valueName":"3","value":3},
         {"cardType": "Clover","valueName":"4","value":4},
