@@ -90,7 +90,9 @@ func gameHandler(w http.ResponseWriter, r *http.Request, player player.Player) {
 				room, connected = connectToRoom(conn, player, message.Info)
 			case "start":
 				_, err := startGame(player, room)
-				printError(conn, err)
+				if err != nil {
+					printError(conn, err)
+				}
 			case "play":
 				connected, err = playerPlay(player, message.Info, room)
 				if err != nil {

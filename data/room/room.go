@@ -239,7 +239,7 @@ func (room *Room) DealerPlay() error {
 		}
 		var countWins int = 0
 		for _, val := range valueList {
-			if room.Dealer.CountHandValue() > val || val > 21 {
+			if room.Dealer.CountHandValue() >= val || val > 21 {
 				countWins++
 			}
 		}
@@ -264,5 +264,50 @@ func (room *Room) DealerPlay() error {
 		"action": "notify",
 		"status": "the dealer is Done"})
 	// todo: determine winners and losers
+	room.showWinners()
+	room.endGame()
 	return err
+}
+
+// showWinners sends a message to each player, notifying its victory or lose
+func (room *Room) showWinners() {
+	for _, player := range room.Players {
+		if (player.CountHandValue() < 22 && player.CountHandValue() == room.Dealer.CountHandValue()) || (player.CountHandValue() > 21 && room.Dealer.CountHandValue() > 21) {
+
+			player.GetConnection().WriteJSON(map[string]interface{}{
+				"action": "notify",
+				"status": "You Draw"})
+
+		} else if room.Dealer.CountHandValue() > 21 || (player.CountHandValue() < 22 && room.Dealer.CountHandValue() < player.CountHandValue()) {
+
+			player.GetConnection().WriteJSON(map[string]interface{}{
+				"action": "notify",
+				"status": "You Win"})
+		} else {
+
+			player.GetConnection().WriteJSON(map[string]interface{}{
+				"action": "notify",
+				"status": "You Lose"})
+		}
+	}
+}
+
+// endGame turns the game in a final state
+func (room *Room) endGame() {
+	room.PlayingNow = false
+	room.cleanHands()
+	room.Dealer = dealer.NewDealer()
+	// notify end of the game
+	room.SendMessageToAll(map[string]interface{}{
+		"action": "End Game"})
+	room.notifyToHost()
+}
+
+func (room *Room) notifyToHost() {
+	for _, player := range room.Players {
+		if player.IsHost {
+			player.GetConnection().WriteJSON(map[string]string{"action": "startGame"})
+			return
+		}
+	}
 }
