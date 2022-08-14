@@ -60,13 +60,19 @@
                 requestcard.style.display = "none"
                 passturn.style.display = "none"
                 break;
+            case "End Game":
+                output.innerHTML+= "End of this Round\n"
+                break;
+            case "startGame":
+                start.style.display="block"
+                break;
             case "notify":
                 if(message.status==="game started")
                     start.style.display = "none"
                 output.innerHTML += "Server: " + message.status + "\n";
                 break;
             default:
-                output.innerHTML += "Unexpected Message\n"+message+"\n";
+                output.innerHTML += "Unexpected Message\n"+ JSON.stringify(message)+"\n";
         }
         
     };
